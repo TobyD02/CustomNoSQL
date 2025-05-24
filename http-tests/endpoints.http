@@ -1,0 +1,15 @@
+###
+PUT http://localhost:8080/collection
+Content-Type: application/json
+
+{
+  "collection_name": "Some New Collection"
+}
+
+###
+POST http://localhost:8080/collection
+Content-Type: application/json
+
+{
+  "collection_name": "Some New Collection"
+}
