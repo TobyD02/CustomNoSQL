@@ -1,50 +1,66 @@
 package Service
 
 import (
-	"CustomNoSQL/types/CollectionTypes"
-	"os"
-	"path/filepath"
+	"CustomNoSQL/src/ConfigProvider"
+	"CustomNoSQL/src/Model/Entity"
+	"CustomNoSQL/src/Model/Request"
+	"CustomNoSQL/src/Process/Collection"
+	"fmt"
+	"github.com/google/uuid"
 )
 
-func CreateNewCollection(request CollectionTypes.CreateNewCollectionRequestType) error {
-	filename := "./data/collections/" + request.CollectionName + ".bson"
-	dir := filepath.Dir(filename)
+// TODO: Any methods that modify collections should use mutex
+func CreateNewCollection(request Request.CreateNewCollectionRequestModel) error {
+	// Get All Collections File (or create if doesn't exist - process)
+	// Verify record name is unique (process)
+	// Create new collection model - should be initialised with empty records
+	// Create new entry (process) - make sure the name is unique
+	// Serialize BSON again
+	// Return Success Message
+	var config ConfigProvider.Config
+	config.GetConfig()
 
-	err := os.MkdirAll(dir, 0755)
+	collectionsPointer, err := Collection.GetAllCollectionsSingletonProcess()
 	if err != nil {
 		return err
 	}
 
-	collection := request.ToCollection()
+	var collections = *collectionsPointer
 
-	data, err := collection.ToBson()
-
-	if err != nil {
-		return err
+	// Check if collection name is already in use
+	for collectionName := range collections {
+		if collectionName == request.CollectionName {
+			return fmt.Errorf("collection name is already in use")
+		}
 	}
 
-	err = os.WriteFile(filename, data, 0644)
-	if err != nil {
-		return err
-	}
+	// Convert request to collection model
+	var collection Entity.CollectionModel
+	collection = request.ToCollection()
+
+	// Initialise with empty records array
+	collection.Records = []uuid.UUID{}
+
+	// Add new collection to collections
+	collections[collection.CollectionName] = collection
 
 	return nil
 }
 
-func LoadCollection(request CollectionTypes.LoadCollectionRequestType) (CollectionTypes.LoadCollectionResponseType, error) {
-	var response CollectionTypes.LoadCollectionResponseType
-	var collection CollectionTypes.CollectionType
+func GetAllCollections() ([]string, error) {
+	var config ConfigProvider.Config
+	config.GetConfig()
 
-	data, err := os.ReadFile("./data/collections/" + request.CollectionName + ".bson")
+	collectionNames := make([]string, 0)
+
+	collections, err := Collection.GetAllCollectionsSingletonProcess()
 	if err != nil {
-		return response, err
+		return collectionNames, err
 	}
 
-	err = collection.FromBson(data)
-	if err != nil {
-		return response, err
+	for collectionName := range *collections {
+		collectionNames = append(collectionNames, collectionName)
 	}
 
-	response.FromCollection(collection)
-	return response, nil
+	return collectionNames, nil
 }

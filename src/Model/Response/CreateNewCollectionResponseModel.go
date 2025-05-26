@@ -1,11 +1,11 @@
-package CollectionTypes
+package Response
 
-type CreateNewCollectionResponseType struct {
+type CreateNewCollectionResponseModel struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 }
 
-type CreateNewCollectionResponseErrorType struct {
+type CreateNewCollectionResponseErrorModel struct {
 	Success bool   `json:"success"`
 	Error   string `json:"error"`
 }

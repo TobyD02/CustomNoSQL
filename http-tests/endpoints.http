@@ -3,13 +3,8 @@ PUT http://localhost:8080/collection
 Content-Type: application/json
 
 {
-  "collection_name": "Some New Collection"
+  "collection_name": "some new collection"
 }
 
 ###
-POST http://localhost:8080/collection
-Content-Type: application/json
-
-{
-  "collection_name": "Some New Collection"
-}
+GET http://localhost:8080/collections

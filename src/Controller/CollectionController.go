@@ -1,17 +1,18 @@
 package Controller
 
 import (
+	"CustomNoSQL/src/Model/Request"
+	"CustomNoSQL/src/Model/Response"
 	"CustomNoSQL/src/Service"
-	"CustomNoSQL/types/CollectionTypes"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func CreateNewCollection(c *gin.Context) {
-	var req CollectionTypes.CreateNewCollectionRequestType
+	var req Request.CreateNewCollectionRequestModel
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, CollectionTypes.CreateNewCollectionResponseErrorType{
+		c.JSON(http.StatusBadRequest, Response.CreateNewCollectionResponseErrorModel{
 			Success: false,
 			Error:   "Request body is malformed: " + err.Error(),
 		})
@@ -20,34 +21,24 @@ func CreateNewCollection(c *gin.Context) {
 
 	err := Service.CreateNewCollection(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, CollectionTypes.CreateNewCollectionResponseErrorType{
+		c.JSON(http.StatusBadRequest, Response.CreateNewCollectionResponseErrorModel{
 			Success: false,
 			Error:   "Failed to create new collection: " + err.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, CollectionTypes.CreateNewCollectionResponseType{
+	c.JSON(http.StatusOK, Response.CreateNewCollectionResponseModel{
 		Success: true,
 		Message: "Successfully created collection: " + req.CollectionName,
 	})
 }
 
-func LoadCollection(c *gin.Context) {
-	var req CollectionTypes.LoadCollectionRequestType
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, CollectionTypes.LoadCollectionResponseErrorType{
-			Success: false,
-			Error:   "Request body is malformed: " + err.Error(),
-		})
-		return
-	}
-
-	response, err := Service.LoadCollection(req)
+func GetAllCollections(c *gin.Context) {
+	response, err := Service.GetAllCollections()
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, CollectionTypes.LoadCollectionResponseErrorType{
+		c.JSON(http.StatusBadRequest, Response.GetAllCollectionsResponseErrorModel{
 			Success: false,
 			Error:   "Failed to load collection: " + err.Error(),
 		})
